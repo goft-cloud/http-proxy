@@ -1,0 +1,10 @@
+.settings/*
+.settings
+.project
+.env
+.idea/
+.git/
+go.sum
+.phpintel/
+*.patch
+runtime/

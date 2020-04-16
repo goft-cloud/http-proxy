@@ -1,0 +1,13 @@
+# 应用配置
+[app]
+name="http-proxy"
+host="0.0.0.0"
+port=9090
+
+[log]
+notice_file="runtime/notice.log"
+error_file="runtime/application.log"
+
+[proxy]
+max-idea=12
+
