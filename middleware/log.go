@@ -30,7 +30,7 @@ func Log(context *gin.Context) {
 	context.Next()
 
 	end := time.Now()
-	cost := end.Sub(start).Seconds()
+	cost := end.Sub(start).Nanoseconds()/1000000
 
 	ip := context.ClientIP()
 	method := context.Request.Method

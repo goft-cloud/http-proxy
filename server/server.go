@@ -53,6 +53,7 @@ func Run() error {
 	go func() {
 		if err := service.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			fmt.Println("Server closed unexpected", err)
+			os.Exit(1)
 		}
 	}()
 

@@ -1,14 +1,11 @@
 package proxy
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/goft-cloud/http-proxy/log"
 	"github.com/goft-cloud/http-proxy/response"
 	"io/ioutil"
 	"net/http"
-	"strconv"
-	"time"
 )
 
 const (
@@ -19,8 +16,6 @@ const (
 func DoProxy(c *gin.Context) {
 	request := c.Request
 	writer := c.Writer
-
-	start := time.Now().UnixNano() / 1000000
 
 	// Target url from header
 	url := request.Header.Get(targetHeaderName)
@@ -71,9 +66,6 @@ func DoProxy(c *gin.Context) {
 		response.Fatal(c, "Read target body error!"+err.Error())
 		return
 	}
-
-	end := time.Now().UnixNano() / 1000000
-	fmt.Printf(" cost=" + strconv.Itoa(int(end-start)) + "\n")
 
 	_, err = writer.Write(body)
 	if err != nil {

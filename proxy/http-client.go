@@ -54,8 +54,6 @@ func HttpClient() *http.Client {
 		}
 	})
 
-	fmt.Println(proxyConfig)
-
 	return client
 }
 
