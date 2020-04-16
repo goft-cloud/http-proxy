@@ -3,6 +3,7 @@ package middleware
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/goft-cloud/http-proxy/log"
+	"github.com/goft-cloud/http-proxy/response"
 )
 
 func Recovery(context *gin.Context) {
@@ -10,9 +11,7 @@ func Recovery(context *gin.Context) {
 		if err := recover(); err != nil {
 			message := err.(string)
 			log.Error(context, message)
-			context.JSON(500, gin.H{
-				"message": "internal error",
-			})
+			response.Fatal(context, "internal error")
 		}
 	}()
 	context.Next()

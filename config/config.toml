@@ -10,9 +10,9 @@ mode="debug"
 path="."
 notice_file="runtime/notice.log"
 error_file="runtime/application.log"
-timestamp-format="2006-01-02 15:04:05"
+timestamp_format="2006-01-02 15:04:05"
 
 # Proxy
 [proxy]
-max-idea=12
+timeout=1
 

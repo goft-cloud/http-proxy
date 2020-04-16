@@ -22,5 +22,5 @@ func Fatal(ctx *gin.Context, message string) {
 		Message: message,
 	}
 
-	ctx.JSON(http.StatusOK, msg)
+	ctx.JSON(http.StatusInternalServerError, msg)
 }
