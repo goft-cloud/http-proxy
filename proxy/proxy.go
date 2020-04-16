@@ -9,6 +9,8 @@ import (
 	"time"
 )
 
+const targetHeaderName = "target-addr"
+
 func DoProxy(c *gin.Context) {
 
 	request := c.Request
@@ -16,7 +18,7 @@ func DoProxy(c *gin.Context) {
 
 	start := time.Now().UnixNano() / 1000000
 
-	url := request.Header.Get("target-addr")
+	url := request.Header.Get(targetHeaderName)
 
 	fmt.Printf("url is=" + url + "\n")
 
@@ -32,7 +34,7 @@ func DoProxy(c *gin.Context) {
 		}
 	}
 
-	resp, err := client.Do(req)
+	resp, err := HttpClient().Do(req)
 	if (err != nil) {
 		fmt.Printf("error=" + err.Error() + " \n")
 		return

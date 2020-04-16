@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"fmt"
 	"github.com/BurntSushi/toml"
 	"io/ioutil"
@@ -16,43 +17,66 @@ var (
 	cfg *config
 )
 
+// Toml config
 type config struct {
 	data   map[string]toml.Primitive
 	source string
 }
 
+// Application config
 type Application struct {
 	Name string `toml:"name"`
 	Host string `toml:"host"`
 	Port int    `toml:"port"`
 }
 
-func Init() {
+func Init() error {
+	// New config
 	cfg = newConfig()
-	path, _ := os.Getwd()
+
+	// Path
+	path, err := os.Getwd()
+	if err != nil {
+		return errors.New("get wd error=" + err.Error())
+	}
+
+	// Config file
 	file := fmt.Sprintf("%s/config/%s.toml", path, baseConfig)
+	str, err := ioutil.ReadFile(file)
+	if err != nil {
+		return errors.New("read config file error=" + err.Error())
+	}
 
 	data := make(map[string]toml.Primitive)
 
-	str, _ := ioutil.ReadFile(file)
-	_, _ = toml.Decode(string(str), &data)
+	// Toml decode
+	_, err = toml.Decode(string(str), &data)
+	if err != nil {
+		return errors.New("toml decode error=" + err.Error())
+	}
+
 	cfg.data = data
 
-	DecodeKey("app", App)
+	// Decode application
+	err = DecodeKey("app", App)
+	if err != nil {
+		return errors.New("decode application error=" + err.Error())
+	}
 
-	fmt.Println(App)
-
+	return nil
 }
 
+// Decode one key from toml config
 func DecodeKey(key string, v interface{}) error {
 	data, exist := cfg.data[key]
-	if (!exist) {
-		fmt.Println("error")
+	if !exist {
+		return errors.New("decode key is not exist! key=" + key)
 	}
 
 	return toml.PrimitiveDecode(data, v)
 }
 
+// New toml config
 func newConfig() *config {
 	return &config{
 		data: make(map[string]toml.Primitive),
