@@ -51,6 +51,6 @@ func Log(context *gin.Context) {
 		WithField("ip", ip).
 		WithField("size", bodySize).
 		WithField("postForm", context.Request.PostForm).
-		Info(message)
+		Notice(message)
 }
 

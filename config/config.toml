@@ -1,13 +1,17 @@
-# 应用配置
+# Application
 [app]
 name="http-proxy"
 host="0.0.0.0"
 port=9090
 
+# Log
 [log]
+path="."
 notice_file="runtime/notice.log"
 error_file="runtime/application.log"
+timestamp-format="2006-01-02 15:04:05"
 
+# Proxy
 [proxy]
 max-idea=12
 

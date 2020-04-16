@@ -1,6 +1,7 @@
 package log
 
 import (
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/goft-cloud/http-proxy/config"
@@ -33,25 +34,19 @@ var (
 )
 
 func Init() (err error) {
-	_ = config.DecodeKey("log", lc)
+	if err := config.DecodeKey("log", lc); err != nil {
+		return errors.New("decode log error=" + err.Error())
+	}
 
 	fmt.Println(lc)
 
-	var (
-		formatter    log.Formatter
-		noticeFile   string
-		errorFile    string
-		noticeWriter io.Writer
-		errorWriter  io.Writer
-	)
-
-	formatter = &log.JSONFormatter{
-		TimestampFormat: "2006-01-02 15:04:05",
+	formatter := &log.JSONFormatter{
+		TimestampFormat: lc.TimestampFormat,
 	}
 
 	path := "."
-	noticeFile = lc.ErrorFile
-	errorFile = lc.NoticeFile
+	noticeFile := lc.ErrorFile
+	errorFile := lc.NoticeFile
 
 	if false == filepath.IsAbs(noticeFile) {
 		noticeFile = path + string(os.PathSeparator) + noticeFile
@@ -60,12 +55,11 @@ func Init() (err error) {
 		errorFile = path + string(os.PathSeparator) + errorFile
 	}
 
-	// 输出文件
-	noticeWriter, err = os.OpenFile(noticeFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0755)
+	noticeWriter, err := os.OpenFile(noticeFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0755)
 	if err != nil {
 		return err
 	}
-	errorWriter, err = os.OpenFile(errorFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0755)
+	errorWriter, err := os.OpenFile(errorFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0755)
 	if err != nil {
 		return err
 	}
@@ -93,8 +87,10 @@ func newLogger() *logger {
 }
 
 type loggerConfig struct {
-	NoticeFile string `toml:"notice_file"`
-	ErrorFile  string `toml:"error_file"`
+	NoticeFile      string `toml:"notice_file"`
+	ErrorFile       string `toml:"error_file"`
+	Path            string `toml:"path"`
+	TimestampFormat string `toml:"timestamp-format"`
 }
 
 type logger struct {
