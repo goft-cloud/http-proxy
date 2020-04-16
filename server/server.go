@@ -38,7 +38,7 @@ func (s *server) Engine() *gin.Engine {
 }
 
 // 初始化 Server
-func Init() {
+func Init() error {
 	s = &server{
 		gin:    gin.New(),
 		isInit: true,
@@ -50,6 +50,7 @@ func Init() {
 	// server 地址
 	s.Addr = fmt.Sprintf("%s:%d", config.App.Host, config.App.Port)
 
+	return nil
 }
 
 // 启动 server

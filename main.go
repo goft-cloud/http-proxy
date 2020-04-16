@@ -6,28 +6,50 @@ import (
 	"github.com/goft-cloud/http-proxy/log"
 	"github.com/goft-cloud/http-proxy/route"
 	"github.com/goft-cloud/http-proxy/server"
+	"os"
 )
 
-func init() {
-	bootstrap()
+func main() {
+	if err := server.Run(); err != nil {
+		fmt.Println("Start Application fail!" + err.Error())
+	}
 }
 
-func main() {
-	server.Run()
+func init() {
+	if err := bootstrap(); err != nil {
+		fmt.Println(" Initialize Application Fail!" + err.Error())
+		os.Exit(1)
+	}
+
+	addr := server.Server().Addr
+	fmt.Println("Start Application Success")
+	fmt.Println("Listen:" + addr)
 }
 
 func bootstrap() error {
-	fmt.Println("Initialize config ...")
+	fmt.Print("Initialize config ...")
 	if err := config.Init(); err != nil {
 		return err
 	}
 	fmt.Println("Initialize config success!")
 
-	log.Init()
+	fmt.Println("Initialize log ...")
+	if err := log.Init(); err != nil {
+		return err
+	}
+	fmt.Println("Initialize log success!")
 
-	server.Init()
+	fmt.Println("Initialize server ...")
+	if err := server.Init(); err != nil {
+		return err
+	}
+	fmt.Println("Initialize server success!")
 
-	route.Init()
+	fmt.Println("Initialize route ...")
+	if err := route.Init(); err != nil {
+		return err
+	}
+	fmt.Println("Initialize route success!")
 
 	return nil
 }
