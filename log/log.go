@@ -34,36 +34,41 @@ var (
 )
 
 func Init() (err error) {
+	// Decode log
 	if err := config.DecodeKey("log", lc); err != nil {
 		return errors.New("decode log error=" + err.Error())
 	}
 
-	fmt.Println(lc)
-
+	// Json format
 	formatter := &log.JSONFormatter{
 		TimestampFormat: lc.TimestampFormat,
 	}
 
-	path := "."
-	noticeFile := lc.ErrorFile
-	errorFile := lc.NoticeFile
+	path := lc.Path
+	noticeFile := lc.NoticeFile
+	errorFile := lc.ErrorFile
 
+	// Notice file
 	if false == filepath.IsAbs(noticeFile) {
 		noticeFile = path + string(os.PathSeparator) + noticeFile
-	}
-	if false == filepath.IsAbs(errorFile) {
-		errorFile = path + string(os.PathSeparator) + errorFile
 	}
 
 	noticeWriter, err := os.OpenFile(noticeFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0755)
 	if err != nil {
 		return err
 	}
+
+	// Error file
+	if false == filepath.IsAbs(errorFile) {
+		errorFile = path + string(os.PathSeparator) + errorFile
+	}
+
 	errorWriter, err := os.OpenFile(errorFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0755)
 	if err != nil {
 		return err
 	}
 
+	// Set level
 	loggerInstance.setLevel(log.NoticeLevel)
 
 	// Writers
@@ -74,7 +79,6 @@ func Init() (err error) {
 	return loggerInstance.Init()
 }
 
-// 获取log实例
 func Logger() *log.Logger {
 	return loggerInstance.Logger()
 }
@@ -103,7 +107,6 @@ type logger struct {
 	lock         *sync.RWMutex
 }
 
-// 写入level
 func (l *logger) setLevel(level log.Level) {
 	if false == l.isInit {
 		l.level = level
@@ -120,26 +123,22 @@ func inLevel(level log.Level, levelList []log.Level) bool {
 	return false
 }
 
-// 设置format
 func (l *logger) setFormatter(formatter log.Formatter) {
 	l.formatter = formatter
 }
 
-// 设置notice的writer
 func (l *logger) setNoticeWriter(writer io.Writer) {
 	if false == l.isInit {
 		l.noticeWriter = writer
 	}
 }
 
-// 设置error的writer
 func (l *logger) setErrorWriter(writer io.Writer) {
 	if false == l.isInit {
 		l.errorWriter = writer
 	}
 }
 
-// 获取Logger实例
 func (l logger) Logger() *log.Logger {
 	return l.logger
 }
@@ -180,7 +179,6 @@ func (l *logger) Fire(entry *log.Entry) error {
 	return nil
 }
 
-// 初始化logger
 func (l *logger) Init() error {
 	l.logger.SetFormatter(l.formatter)
 	l.logger.SetLevel(l.level)

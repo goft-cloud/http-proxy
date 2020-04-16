@@ -8,6 +8,7 @@ import (
 func Init() error {
 	router := server.Server().Engine()
 
-	router.Any("/proxy", proxy.DoProxy)
+	// Add proxy uri
+	router.Any("/", proxy.DoProxy)
 	return nil
 }

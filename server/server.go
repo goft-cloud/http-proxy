@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/goft-cloud/http-proxy/config"
 	"github.com/goft-cloud/http-proxy/middleware"
+	"github.com/goft-cloud/http-proxy/response"
 	"net/http"
 	"os"
 	"os/signal"
@@ -17,63 +18,41 @@ var (
 	s *server
 )
 
-type server struct {
-	gin *gin.Engine
-
-	Addr string
-
-	isInit bool
-}
-
-func Server() *server {
-	return s
-}
-
-// Engine 返回engine对象
-func (s *server) Engine() *gin.Engine {
-	if !s.isInit {
-		return nil
-	}
-	return s.gin
-}
-
-// 初始化 Server
 func Init() error {
 	s = &server{
 		gin:    gin.New(),
 		isInit: true,
 	}
 
-	// 默认路由
+	gin.SetMode(gin.DebugMode)
+
+	// Set mode
+	if config.App.IsRelease() {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
+	// Register middleware and must define by first
+	s.gin.Use(middleware.Request, middleware.Log, middleware.Recovery)
+
+	// Add default route
 	s.addDefaultRoute()
 
-	// server 地址
+	// Server address
 	s.Addr = fmt.Sprintf("%s:%d", config.App.Host, config.App.Port)
-
 	return nil
 }
 
-// 启动 server
+// Start server
 func Run() error {
-
-	// 创建server
-	return newServer()
-}
-
-// 创建服务
-func newServer() error {
-	s.gin.Use(middleware.Request, middleware.Log, middleware.Recovery)
-
 	service := &http.Server{
 		Addr:    s.Addr,
 		Handler: s.gin,
 	}
 
-	fmt.Println(s.Addr)
-
+	// Start server by coroutine
 	go func() {
 		if err := service.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			fmt.Println("server closed unexpected", err)
+			fmt.Println("Server closed unexpected", err)
 		}
 	}()
 
@@ -90,13 +69,30 @@ func newServer() error {
 	return nil
 }
 
+type server struct {
+	gin *gin.Engine
+
+	Addr string
+
+	isInit bool
+}
+
+func Server() *server {
+	return s
+}
+
+func (s *server) Engine() *gin.Engine {
+	if !s.isInit {
+		return nil
+	}
+	return s.gin
+}
+
 func (s *server) addDefaultRoute() {
 	s.gin.GET("/ping", ping)
 }
 
-// ping ping handler
+// Ping handler
 func ping(ctx *gin.Context) {
-	ctx.JSON(200, gin.H{
-		"message": "ping",
-	})
+	response.Success(ctx, "ok")
 }

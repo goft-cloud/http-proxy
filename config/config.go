@@ -10,6 +10,8 @@ import (
 
 const (
 	baseConfig = "config"
+	debug      = "debug"
+	release    = "release"
 )
 
 var (
@@ -28,6 +30,7 @@ type Application struct {
 	Name string `toml:"name"`
 	Host string `toml:"host"`
 	Port int    `toml:"port"`
+	Mode string `toml:"mode"`
 }
 
 func Init() error {
@@ -74,6 +77,14 @@ func DecodeKey(key string, v interface{}) error {
 	}
 
 	return toml.PrimitiveDecode(data, v)
+}
+
+func (a *Application) IsRelease() bool {
+	return a.Mode == release
+}
+
+func (a *Application) IsDebug() bool {
+	return a.Mode == debug
 }
 
 // New toml config
